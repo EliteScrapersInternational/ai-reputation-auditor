@@ -4,17 +4,17 @@ await Actor.init();
 
 // 1. Get the City and Business Type from the user
 const input = await Actor.getInput() || {};
-// We changed the default to "Solar Energy" to match our new niche!
 const location = input.location || 'Miami, FL';
 const businessType = input.businessType || 'Solar Energy Company';
 
 console.log(`☀️ AI AUDIT STARTING: Looking for ${businessType} in ${location}...`);
 
-// 2. Call the Google Maps scraper 
+// 2. Call the Google Maps scraper (Fixed the names to match what the bot wants)
 const mapRun = await Actor.call('compass/crawler-google-places', {
-    searchStrings: [`${businessType} in ${location}`],
-    maxPoints: 5, 
-    includeReviews: true,
+    "searchStringsArray": [`${businessType} in ${location}`], // Fixed name!
+    "maxReviews": 5, // Updated to use the new non-deprecated name
+    "maxImages": 0,
+    "maxItems": 5, // We'll start with 5 to keep it fast
 });
 
 // 3. Get the results
@@ -29,9 +29,8 @@ const finalResults = items.map((business) => {
         location: location,
         stars: business.totalScore,
         reviewCount: business.reviewsCount,
-        // This is the "Hook" for Solar companies
-        ai_audit: `Solar leads are worth $2k each. This business has a ${business.totalScore} rating. They are likely losing high-ticket customers to competitors with better reviews.`,
-        outreach_pitch: `Hi ${business.title}, I'm an AI specialist in Miami. I noticed your Solar company has ${business.reviewsCount} reviews. I've analyzed your customer feedback and can show you how to capture more solar installs by fixing your reputation.`
+        ai_audit: `Solar leads are high-value. This business has a ${business.totalScore} rating. They are likely losing customers to competitors with better reviews.`,
+        outreach_pitch: `Hi ${business.title}, I noticed your Solar company has ${business.reviewsCount} reviews. I can help you fix your reputation and get more installs!`
     };
 });
 
