@@ -1,0 +1,8 @@
+{
+    "actorSpecification": 1,
+    "name": "ai-reputation-auditor",
+    "version": "0.1",
+    "title": "AI Reputation Auditor",
+    "input": "./input_schema.json",
+    "output": "./output_schema.json"
+}
