@@ -1,0 +1,12 @@
+{
+    "actorOutputSchemaVersion": 1,
+    "title": "Reputation Results",
+    "type": "object",
+    "properties": {
+        "results": {
+            "title": "AI Audit",
+            "type": "string",
+            "template": "{{links.apiDefaultDatasetUrl}}/items"
+        }
+    }
+}
