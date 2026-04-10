@@ -2,39 +2,56 @@ import { Actor } from 'apify';
 
 await Actor.init();
 
-// 1. Get the City and Business Type from the user
 const input = await Actor.getInput() || {};
-const location = input.location || 'Miami, FL';
+const location = input.location || 'Atlanta, GA';
 const businessType = input.businessType || 'Solar Energy Company';
 
-console.log(`☀️ AI AUDIT STARTING: Looking for ${businessType} in ${location}...`);
+console.log(`🧠 SMART AUDIT: Analyzing ${businessType} in ${location}...`);
 
-// 2. Call the Google Maps scraper (Fixed the names to match what the bot wants)
 const mapRun = await Actor.call('compass/crawler-google-places', {
-    "searchStringsArray": [`${businessType} in ${location}`], // Fixed name!
-    "maxReviews": 5, // Updated to use the new non-deprecated name
+    "searchStringsArray": [`${businessType} in ${location}`],
+    "maxReviews": 0, 
     "maxImages": 0,
-    "maxItems": 5, // We'll start with 5 to keep it fast
+    "maxItems": 10, 
 });
 
-// 3. Get the results
 const { defaultDatasetId } = mapRun;
 const dataset = await Actor.openDataset(defaultDatasetId);
 const { items } = await dataset.getData();
 
-// 4. The "Solar Industry" Brain
 const finalResults = items.map((business) => {
+    const stars = business.totalScore;
+    const count = business.reviewsCount || 0;
+    
+    let ai_audit = "";
+    let outreach_pitch = "";
+
+    // --- THE LOGIC GATE ---
+    if (!stars || count === 0) {
+        ai_audit = "INVISIBLE: This business has no presence. They are losing 100% of local search traffic.";
+        outreach_pitch = `Hi ${business.title}, I searched for solar in ${location} and noticed you don't have any reviews yet. I can help you get your first 10 reviews so customers actually trust you!`;
+    } 
+    else if (stars < 4.2) {
+        ai_audit = `REPUTATION DANGER: A ${stars} star rating is scaring away high-ticket solar leads.`;
+        outreach_pitch = `Hi ${business.title}, I noticed your ${stars}-star rating. In the solar industry, anything under 4.5 makes people nervous. I can help you fix those negative reviews!`;
+    } 
+    else if (count < 20) {
+        ai_audit = "LOW TRUST: The rating is good, but there aren't enough reviews to prove they are experts.";
+        outreach_pitch = `Hi ${business.title}, you have a great ${stars}-star rating, but only ${count} reviews. If we get you to 50 reviews, you'll dominate the ${location} market!`;
+    } 
+    else {
+        ai_audit = "WINNING: Good rating and solid volume. Strategy: Use these reviews for social media ads.";
+        outreach_pitch = `Hi ${business.title}, you're crushing it with ${count} reviews! I can help you turn those 5-star reviews into Facebook ads to get even more solar installs.`;
+    }
+
     return {
         businessName: business.title,
-        location: location,
-        stars: business.totalScore,
-        reviewCount: business.reviewsCount,
-        ai_audit: `Solar leads are high-value. This business has a ${business.totalScore} rating. They are likely losing customers to competitors with better reviews.`,
-        outreach_pitch: `Hi ${business.title}, I noticed your Solar company has ${business.reviewsCount} reviews. I can help you fix your reputation and get more installs!`
+        stars: stars || "None",
+        reviewCount: count,
+        ai_audit: ai_audit,
+        outreach_pitch: outreach_pitch
     };
 });
 
-// 5. Save the data
 await Actor.pushData(finalResults);
-
 await Actor.exit();
