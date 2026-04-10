@@ -2,7 +2,7 @@
     "actorSpecification": 1,
     "name": "ai-reputation-auditor",
     "version": "0.1",
-    "title": "AI Reputation Auditor",
-    "input": "./input_schema.json",
+    "title": "AI Solar Reputation Auditor",
+    "input": "./INPUT_SCHEMA.json", 
     "output": "./output_schema.json"
 }
