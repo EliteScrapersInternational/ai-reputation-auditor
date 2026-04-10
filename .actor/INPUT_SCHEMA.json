@@ -1,0 +1,21 @@
+{
+    "title": "Search Settings",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "location": {
+            "title": "City",
+            "type": "string",
+            "description": "Example: Queens, NY",
+            "editor": "textfield",
+            "prefill": "Queens, NY"
+        },
+        "businessType": {
+            "title": "Business Type",
+            "type": "string",
+            "description": "Example: Plumbers",
+            "editor": "textfield",
+            "prefill": "Plumbers"
+        }
+    }
+}
