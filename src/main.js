@@ -64,3 +64,7 @@ const finalResults = items.map((business) => {
         top_complaint: complaint,
         phone: business.phone || "MISSING",
         website: business.website || "MISSING",
+        });
+
+await Actor.pushData(finalResults);
+await Actor.exit()
