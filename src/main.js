@@ -7,7 +7,10 @@ const location = input.location || 'Chicago, IL';
 const businessType = input.businessType || 'Bakery';
 const maxItems = input.maxItems || 20; 
 
-console.log(`🚀 STARTING EXPERT AUDIT: Analyzing ${businessType}s in ${location}...`);
+// Helper to capitalize the City/State for the pitch
+const formattedLocation = location.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+
+console.log(`🚀 STARTING UNIVERSAL AUDIT: Analyzing ${businessType}s in ${formattedLocation}...`);
 
 const mapRun = await Actor.call('compass/crawler-google-places', {
     "searchStringsArray": [`${businessType} in ${location}`],
@@ -24,7 +27,6 @@ const finalResults = items.map((business) => {
     const stars = business.totalScore;
     const count = business.reviewsCount || 0;
     const hasWebsite = !!business.website;
-    const hasPhone = !!business.phone;
     
     const allReviewsText = (business.reviews || []).map(r => r.text).join(" ").toLowerCase();
     
@@ -46,10 +48,10 @@ const finalResults = items.map((business) => {
 
     let ai_audit = "";
     let outreach_pitch = "";
-    let quality_score = "⭐️⭐️"; // Default
+    let quality_score = "⭐️⭐️"; 
 
     if (complaint !== "None found") {
-        quality_score = "⭐️⭐️⭐️⭐️⭐️"; // These are the best leads!
+        quality_score = "⭐️⭐️⭐️⭐️⭐️"; 
         ai_audit = `🚨 CRITICAL: Customers are complaining about ${complaint}.`;
         outreach_pitch = `Hi ${business.title}, I noticed a few recent reviews mentioning ${complaint.toLowerCase()}. I specialize in helping ${pluralType} fix their reputation and bury those negative comments!`;
     } else if (!hasWebsite) {
@@ -59,7 +61,7 @@ const finalResults = items.map((business) => {
     } else if (count < 15) {
         quality_score = "⭐️⭐️⭐️";
         ai_audit = "LOW PROOF: Needs more reviews.";
-        outreach_pitch = `Hi ${business.title}, you have a great business but only ${count} reviews. If we get you to 50, you'll dominate ${location}!`;
+        outreach_pitch = `Hi ${business.title}, you have a great business but only ${count} reviews. If we get you to 50, you'll dominate ${formattedLocation}!`;
     } else {
         ai_audit = "WINNING: Great reputation.";
         outreach_pitch = `Hi ${business.title}, you're crushing it with ${count} reviews! Want to turn your happy customers into a Facebook ad machine?`;
@@ -67,7 +69,7 @@ const finalResults = items.map((business) => {
 
     return {
         lead_quality: quality_score,
-        priority_score: (quality_score === "⭐️⭐️⭐️⭐️⭐️" || quality_score === "⭐️⭐️⭐️⭐️") ? "🚨 HIGH" : "✅ Healthy",
+        priority: (quality_score === "⭐️⭐️⭐️⭐️⭐️" || quality_score === "⭐️⭐️⭐️⭐️") ? "🚨 HIGH" : "✅ Healthy",
         businessName: business.title,
         stars: stars || "None",
         reviewCount: count,
@@ -79,7 +81,7 @@ const finalResults = items.map((business) => {
     };
 });
 
-// Sort so the best leads (5 stars) are at the top!
+// Sort to put the 5-star leads at the top
 finalResults.sort((a, b) => b.lead_quality.length - a.lead_quality.length);
 
 await Actor.pushData(finalResults);
