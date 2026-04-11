@@ -1,29 +1,27 @@
 {
-    "title": "Elite Reputation Auditor Pro",
+    "title": "Local Business Auditor Input",
     "type": "object",
     "schemaVersion": 1,
     "properties": {
         "businessType": {
             "title": "Business Type",
             "type": "string",
-            "description": "Example: Dentist, Solar, or Plumber",
-            "editor": "textfield",
-            "prefill": "Solar Energy Company"
+            "description": "What kind of business? (e.g., Bakery, Plumber, Dentist)",
+            "default": "Bakery"
         },
         "location": {
             "title": "Location",
             "type": "string",
-            "description": "Example: Miami, FL or Atlanta, GA",
-            "editor": "textfield",
-            "prefill": "Miami, FL"
+            "description": "City and State (e.g., Las Vegas, NV)",
+            "default": "Las Vegas, NV"
         },
         "maxItems": {
-            "title": "Max Leads to Scrape",
+            "title": "Max Results",
             "type": "integer",
-            "description": "How many businesses do you want to find? (More leads take more time)",
-            "minimum": 1,
-            "default": 20
+            "description": "How many businesses do you want to find?",
+            "default": 10,
+            "minimum": 1
         }
     },
-    "required": ["businessType", "location", "maxItems"]
+    "required": ["businessType", "location"]
 }
