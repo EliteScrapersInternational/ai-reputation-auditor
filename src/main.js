@@ -4,14 +4,14 @@ await Actor.init();
 
 const input = await Actor.getInput() || {};
 const location = input.location || 'Miami, FL';
-const businessType = input.businessType || 'Dentist'; // Default to Dentist
-const maxItems = input.maxItems || 20;
+const businessType = input.businessType || 'Dentist';
+const maxItems = input.maxItems || 10; // Keep it small for testing!
 
-console.log(`🚀 UNIVERSAL AUDIT: Finding ${maxItems} ${businessType}s in ${location}...`);
+console.log(`🔍 DEEP AUDIT: Reading reviews for ${businessType}s in ${location}...`);
 
 const mapRun = await Actor.call('compass/crawler-google-places', {
     "searchStringsArray": [`${businessType} in ${location}`],
-    "maxReviews": 0, 
+    "maxReviews": 10, // NOW WE ARE READING THE TOP 10 REVIEWS!
     "maxImages": 0,
     "maxItems": maxItems, 
 });
@@ -23,47 +23,42 @@ const { items } = await dataset.getData();
 const finalResults = items.map((business) => {
     const stars = business.totalScore;
     const count = business.reviewsCount || 0;
-    const hasWebsite = !!business.website;
-    const hasPhone = !!business.phone;
     
-    // SMART GRAMMAR: Fixes the "1 reviews" problem
+    // --- NEW: REVIEW ANALYSIS LOGIC ---
+    const allReviewsText = (business.reviews || []).map(r => r.text).join(" ").toLowerCase();
+    
+    let complaint = "None found";
+    if (allReviewsText.includes("expensive") || allReviewsText.includes("price") || allReviewsText.includes("charge")) {
+        complaint = "Pricing/Cost Issues";
+    } else if (allReviewsText.includes("slow") || allReviewsText.includes("wait") || allReviewsText.includes("time")) {
+        complaint = "Wait Time/Speed";
+    } else if (allReviewsText.includes("rude") || allReviewsText.includes("unprofessional") || allReviewsText.includes("attitude")) {
+        complaint = "Customer Service/Staff";
+    }
+    // ----------------------------------
+
     const reviewWord = count === 1 ? "review" : "reviews";
-    
     let ai_audit = "";
     let outreach_pitch = "";
-    let warnings = [];
 
-    if (!hasWebsite) warnings.push("NO WEBSITE");
-    if (!hasPhone) warnings.push("NO PHONE");
-    if (stars && stars < 4.0) warnings.push("BAD RATING");
-    if (count < 10) warnings.push("LOW PROOF");
-
-    const priorityScore = warnings.length > 0 
-        ? `🚨 HIGH: ${warnings.join(" + ")}` 
-        : "✅ Healthy";
-
-    // UNIVERSAL LOGIC: It uses the {businessType} from the input box!
-    if (!stars || count === 0) {
-        ai_audit = `INVISIBLE: This ${businessType} has no presence.`;
-        outreach_pitch = `Hi ${business.title}, I was looking for a ${businessType} in ${location} and couldn't find any reviews for you. I help ${businessType}s get noticed!`;
-    } 
-    else if (stars < 4.2) {
-        ai_audit = `REPUTATION DANGER: ${stars} stars is hurting your ${businessType} brand.`;
-        outreach_pitch = `Hi ${business.title}, I noticed your ${stars}-star rating. Most people looking for a ${businessType} will skip over anything under 4.5. Want me to help fix this?`;
-    } 
-    else {
-        ai_audit = `WINNING: Solid ${businessType} profile.`;
-        outreach_pitch = `Hi ${business.title}, you're doing great with ${count} ${reviewWord}! I can help you turn those into ads to get more ${businessType} customers.`;
+    if (complaint !== "None found") {
+        ai_audit = `🚨 CRITICAL: Customers are complaining about ${complaint}.`;
+        outreach_pitch = `Hi ${business.title}, I noticed a few recent reviews mentioning ${complaint.toLowerCase()}. I specialize in helping ${businessType}s fix their reputation and bury those negative comments!`;
+    } else if (!stars || count < 5) {
+        ai_audit = "INVISIBLE: No social proof.";
+        outreach_pitch = `Hi ${business.title}, you're invisible in ${location}! Let's get you 20 fresh reviews this month.`;
+    } else {
+        ai_audit = "WINNING: Great reputation.";
+        outreach_pitch = `Hi ${business.title}, you're crushing it! Want to turn your happy customers into a referral machine?`;
     }
 
     return {
-        priority_score: priorityScore,
         businessName: business.title,
         stars: stars || "None",
         reviewCount: count,
+        top_complaint: complaint, // New column!
         phone: business.phone || "MISSING",
         website: business.website || "MISSING",
-        address: business.address || "No Address Listed",
         ai_audit: ai_audit,
         outreach_pitch: outreach_pitch
     };
