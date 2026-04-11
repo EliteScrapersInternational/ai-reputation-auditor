@@ -1,25 +1,27 @@
 {
-    "title": "Local Business Auditor Input",
+    "title": "Business Lead Generator & Auditor",
     "type": "object",
     "schemaVersion": 1,
     "properties": {
         "businessType": {
-            "title": "Business Type",
+            "title": "What kind of business?",
             "type": "string",
-            "description": "What kind of business? (e.g., Bakery, Plumber, Dentist)",
-            "default": "Bakery"
+            "description": "Example: Plumber, Dentist, Pizza, etc.",
+            "editor": "textfield",
+            "prefill": "Bakery"
         },
         "location": {
-            "title": "Location",
+            "title": "What city and state?",
             "type": "string",
-            "description": "City and State (e.g., Las Vegas, NV)",
-            "default": "Las Vegas, NV"
+            "description": "Example: Chicago, IL or Miami, FL",
+            "editor": "textfield",
+            "prefill": "Chicago, IL"
         },
         "maxItems": {
-            "title": "Max Results",
+            "title": "How many leads do you want?",
             "type": "integer",
-            "description": "How many businesses do you want to find?",
-            "default": 10,
+            "description": "Maximum number of businesses to find.",
+            "default": 20,
             "minimum": 1
         }
     },
