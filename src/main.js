@@ -3,16 +3,17 @@ import { Actor } from 'apify';
 await Actor.init();
 
 const input = await Actor.getInput() || {};
-const location = input.location || 'Atlanta, GA';
-const businessType = input.businessType || 'Solar Energy Company';
+const location = input.location || 'Miami, FL';
+const businessType = input.businessType || 'Dentist'; // Default to Dentist
+const maxItems = input.maxItems || 20;
 
-console.log(`🧠 SMART AUDIT: Analyzing ${businessType} in ${location}...`);
+console.log(`🚀 UNIVERSAL AUDIT: Finding ${maxItems} ${businessType}s in ${location}...`);
 
 const mapRun = await Actor.call('compass/crawler-google-places', {
     "searchStringsArray": [`${businessType} in ${location}`],
     "maxReviews": 0, 
     "maxImages": 0,
-    "maxItems": 10, 
+    "maxItems": maxItems, 
 });
 
 const { defaultDatasetId } = mapRun;
@@ -25,11 +26,13 @@ const finalResults = items.map((business) => {
     const hasWebsite = !!business.website;
     const hasPhone = !!business.phone;
     
+    // SMART GRAMMAR: Fixes the "1 reviews" problem
+    const reviewWord = count === 1 ? "review" : "reviews";
+    
     let ai_audit = "";
     let outreach_pitch = "";
     let warnings = [];
 
-    // 1. CHECK FOR RED FLAGS (The Differentiator)
     if (!hasWebsite) warnings.push("NO WEBSITE");
     if (!hasPhone) warnings.push("NO PHONE");
     if (stars && stars < 4.0) warnings.push("BAD RATING");
@@ -39,25 +42,20 @@ const finalResults = items.map((business) => {
         ? `🚨 HIGH: ${warnings.join(" + ")}` 
         : "✅ Healthy";
 
-    // 2. SMART LOGIC FOR THE PITCH
+    // UNIVERSAL LOGIC: It uses the {businessType} from the input box!
     if (!stars || count === 0) {
-        ai_audit = `INVISIBLE: This business has no presence. They are losing 100% of local search traffic.`;
-        outreach_pitch = `Hi ${business.title}, I searched for ${businessType} in ${location} and noticed you don't have any reviews yet. I can help you get your first 10!`;
+        ai_audit = `INVISIBLE: This ${businessType} has no presence.`;
+        outreach_pitch = `Hi ${business.title}, I was looking for a ${businessType} in ${location} and couldn't find any reviews for you. I help ${businessType}s get noticed!`;
     } 
     else if (stars < 4.2) {
-        ai_audit = `REPUTATION DANGER: A ${stars} star rating is scaring away high-ticket leads.`;
-        outreach_pitch = `Hi ${business.title}, I noticed your ${stars}-star rating. In the ${businessType} industry, anything under 4.5 makes people nervous. I can fix this for you!`;
-    } 
-    else if (count < 20) {
-        ai_audit = `LOW TRUST: The rating is good, but there aren't enough reviews to prove expertise.`;
-        outreach_pitch = `Hi ${business.title}, you have a great rating, but only ${count} reviews. If we get you to 50 reviews, you'll dominate ${location}!`;
+        ai_audit = `REPUTATION DANGER: ${stars} stars is hurting your ${businessType} brand.`;
+        outreach_pitch = `Hi ${business.title}, I noticed your ${stars}-star rating. Most people looking for a ${businessType} will skip over anything under 4.5. Want me to help fix this?`;
     } 
     else {
-        ai_audit = `WINNING: Good rating and solid volume. Strategy: Use reviews for social ads.`;
-        outreach_pitch = `Hi ${business.title}, you're crushing it with ${count} reviews! I can help you turn those into Facebook ads to get more ${businessType} customers.`;
+        ai_audit = `WINNING: Solid ${businessType} profile.`;
+        outreach_pitch = `Hi ${business.title}, you're doing great with ${count} ${reviewWord}! I can help you turn those into ads to get more ${businessType} customers.`;
     }
 
-    // 3. FINAL DATA RETURN
     return {
         priority_score: priorityScore,
         businessName: business.title,
