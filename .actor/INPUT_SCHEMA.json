@@ -16,7 +16,14 @@
             "description": "Example: Miami, FL or Atlanta, GA",
             "editor": "textfield",
             "prefill": "Miami, FL"
+        },
+        "maxItems": {
+            "title": "Max Leads to Scrape",
+            "type": "integer",
+            "description": "How many businesses do you want to find? (More leads take more time)",
+            "minimum": 1,
+            "default": 20
         }
     },
-    "required": ["businessType", "location"]
+    "required": ["businessType", "location", "maxItems"]
 }
