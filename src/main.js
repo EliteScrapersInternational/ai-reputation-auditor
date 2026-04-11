@@ -7,7 +7,7 @@ const location = input.location || 'Chicago, IL';
 const businessType = input.businessType || 'Bakery';
 const maxItems = input.maxItems || 20; 
 
-console.log(`🚀 STARTING SUPER AUDIT: Analyzing ${businessType}s in ${location}...`);
+console.log(`🚀 STARTING EXPERT AUDIT: Analyzing ${businessType}s in ${location}...`);
 
 const mapRun = await Actor.call('compass/crawler-google-places', {
     "searchStringsArray": [`${businessType} in ${location}`],
@@ -24,6 +24,7 @@ const finalResults = items.map((business) => {
     const stars = business.totalScore;
     const count = business.reviewsCount || 0;
     const hasWebsite = !!business.website;
+    const hasPhone = !!business.phone;
     
     const allReviewsText = (business.reviews || []).map(r => r.text).join(" ").toLowerCase();
     
@@ -36,7 +37,6 @@ const finalResults = items.map((business) => {
         complaint = "Customer Service/Staff";
     }
 
-    // Fix the plural for the business type
     let pluralType = businessType.toLowerCase();
     if (pluralType.endsWith('y')) {
         pluralType = pluralType.slice(0, -1) + 'ies';
@@ -44,26 +44,30 @@ const finalResults = items.map((business) => {
         pluralType = pluralType + 's';
     }
 
-    const reviewWord = count === 1 ? "review" : "reviews";
     let ai_audit = "";
     let outreach_pitch = "";
+    let quality_score = "⭐️⭐️"; // Default
 
     if (complaint !== "None found") {
+        quality_score = "⭐️⭐️⭐️⭐️⭐️"; // These are the best leads!
         ai_audit = `🚨 CRITICAL: Customers are complaining about ${complaint}.`;
         outreach_pitch = `Hi ${business.title}, I noticed a few recent reviews mentioning ${complaint.toLowerCase()}. I specialize in helping ${pluralType} fix their reputation and bury those negative comments!`;
-    } else if (!stars || count < 10) {
-        ai_audit = "LOW PROOF: Needs more social proof.";
-        outreach_pitch = `Hi ${business.title}, you have a great business but only ${count} ${reviewWord}. If we get you to 50 reviews, you'll dominate ${location}!`;
     } else if (!hasWebsite) {
+        quality_score = "⭐️⭐️⭐️⭐️";
         ai_audit = "TECH GAP: Missing website.";
         outreach_pitch = `Hi ${business.title}, you have ${count} reviews but no website! You are losing customers who want to book online. I can build one for you.`;
+    } else if (count < 15) {
+        quality_score = "⭐️⭐️⭐️";
+        ai_audit = "LOW PROOF: Needs more reviews.";
+        outreach_pitch = `Hi ${business.title}, you have a great business but only ${count} reviews. If we get you to 50, you'll dominate ${location}!`;
     } else {
         ai_audit = "WINNING: Great reputation.";
         outreach_pitch = `Hi ${business.title}, you're crushing it with ${count} reviews! Want to turn your happy customers into a Facebook ad machine?`;
     }
 
     return {
-        priority_score: (complaint !== "None found" || !hasWebsite) ? "🚨 HIGH" : "✅ Healthy",
+        lead_quality: quality_score,
+        priority_score: (quality_score === "⭐️⭐️⭐️⭐️⭐️" || quality_score === "⭐️⭐️⭐️⭐️") ? "🚨 HIGH" : "✅ Healthy",
         businessName: business.title,
         stars: stars || "None",
         reviewCount: count,
@@ -74,6 +78,9 @@ const finalResults = items.map((business) => {
         outreach_pitch: outreach_pitch
     };
 });
+
+// Sort so the best leads (5 stars) are at the top!
+finalResults.sort((a, b) => b.lead_quality.length - a.lead_quality.length);
 
 await Actor.pushData(finalResults);
 await Actor.exit();
