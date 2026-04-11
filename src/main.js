@@ -26,7 +26,7 @@ const finalResults = items.map((business) => {
     let ai_audit = "";
     let outreach_pitch = "";
 
-   // --- THE DYNAMIC LOGIC GATE ---
+    // --- THE DYNAMIC LOGIC GATE ---
     if (!stars || count === 0) {
         ai_audit = `INVISIBLE: This business has no presence. They are losing 100% of local search traffic.`;
         outreach_pitch = `Hi ${business.title}, I searched for ${businessType} in ${location} and noticed you don't have any reviews yet. I can help you get your first 10 reviews!`;
@@ -42,19 +42,20 @@ const finalResults = items.map((business) => {
     else {
         ai_audit = `WINNING: Good rating and solid volume. Strategy: Use these reviews for social media ads.`;
         outreach_pitch = `Hi ${business.title}, you're crushing it with ${count} reviews! I can help you turn those 5-star reviews into Facebook ads to get even more ${businessType} customers.`;
-    }return {
+    }
+
+    // --- THE FINAL OUTPUT (Adding the Website, Phone, and Address) ---
+    return {
         businessName: business.title,
         stars: stars || "None",
         reviewCount: count,
+        address: business.address || "No Address Listed",
+        phone: business.phone || "No Phone Listed",
+        website: business.website || "No Website Listed",
         ai_audit: ai_audit,
-        outreach_pitch: outreach_pitch,
-        website: business.website, // Added this so you can visit their site!
-        phone: business.phoneNumber // Added this so you can call them!
+        outreach_pitch: outreach_pitch
     };
 });
 
-// This sends the list to your "Dataset" tab
 await Actor.pushData(finalResults);
-
-// This tells the Apify server you are finished
 await Actor.exit();
