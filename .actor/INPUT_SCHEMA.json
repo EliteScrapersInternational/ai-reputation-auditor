@@ -1,21 +1,21 @@
 {
-    "title": "Reputation Auditor Input",
+    "title": "Elite Reputation Auditor Pro",
     "type": "object",
     "schemaVersion": 1,
     "properties": {
         "businessType": {
-            "title": "What business are we auditing?",
+            "title": "Business Type",
             "type": "string",
-            "description": "Example: Dentist, Plumber, Solar",
+            "description": "Example: Dentist, Solar, or Plumber",
             "editor": "textfield",
             "prefill": "Solar Energy Company"
         },
         "location": {
-            "title": "Where are they located?",
+            "title": "Location",
             "type": "string",
-            "description": "Example: Atlanta, GA or Miami, FL",
+            "description": "Example: Miami, FL or Atlanta, GA",
             "editor": "textfield",
-            "prefill": "Atlanta, GA"
+            "prefill": "Miami, FL"
         }
     },
     "required": ["businessType", "location"]
