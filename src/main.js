@@ -2,15 +2,13 @@ import { Actor } from 'apify';
 
 await Actor.init();
 
-// 1. Get the settings you typed into the "Input" tab
 const input = await Actor.getInput() || {};
-const location = input.location || 'Miami, FL';
+const location = input.location || 'Chicago, IL';
 const businessType = input.businessType || 'Bakery';
-const maxItems = input.maxItems || 10; 
+const maxItems = input.maxItems || 20; 
 
 console.log(`🚀 STARTING SUPER AUDIT: Analyzing ${businessType}s in ${location}...`);
 
-// 2. Call the Google Maps Scraper
 const mapRun = await Actor.call('compass/crawler-google-places', {
     "searchStringsArray": [`${businessType} in ${location}`],
     "maxReviews": 10, 
@@ -22,13 +20,11 @@ const { defaultDatasetId } = mapRun;
 const dataset = await Actor.openDataset(defaultDatasetId);
 const { items } = await dataset.getData();
 
-// 3. Process the data and create the AI Audit
 const finalResults = items.map((business) => {
     const stars = business.totalScore;
     const count = business.reviewsCount || 0;
     const hasWebsite = !!business.website;
     
-    // Combine reviews into one big text to search for problems
     const allReviewsText = (business.reviews || []).map(r => r.text).join(" ").toLowerCase();
     
     let complaint = "None found";
@@ -40,14 +36,21 @@ const finalResults = items.map((business) => {
         complaint = "Customer Service/Staff";
     }
 
+    // Fix the plural for the business type
+    let pluralType = businessType.toLowerCase();
+    if (pluralType.endsWith('y')) {
+        pluralType = pluralType.slice(0, -1) + 'ies';
+    } else if (!pluralType.endsWith('s')) {
+        pluralType = pluralType + 's';
+    }
+
     const reviewWord = count === 1 ? "review" : "reviews";
     let ai_audit = "";
     let outreach_pitch = "";
 
-    // LOGIC: Decide what to say based on what we found
     if (complaint !== "None found") {
         ai_audit = `🚨 CRITICAL: Customers are complaining about ${complaint}.`;
-        outreach_pitch = `Hi ${business.title}, I noticed a few recent reviews mentioning ${complaint.toLowerCase()}. I specialize in helping ${businessType}s fix their reputation and bury those negative comments!`;
+        outreach_pitch = `Hi ${business.title}, I noticed a few recent reviews mentioning ${complaint.toLowerCase()}. I specialize in helping ${pluralType} fix their reputation and bury those negative comments!`;
     } else if (!stars || count < 10) {
         ai_audit = "LOW PROOF: Needs more social proof.";
         outreach_pitch = `Hi ${business.title}, you have a great business but only ${count} ${reviewWord}. If we get you to 50 reviews, you'll dominate ${location}!`;
@@ -61,3 +64,16 @@ const finalResults = items.map((business) => {
 
     return {
         priority_score: (complaint !== "None found" || !hasWebsite) ? "🚨 HIGH" : "✅ Healthy",
+        businessName: business.title,
+        stars: stars || "None",
+        reviewCount: count,
+        top_complaint: complaint,
+        phone: business.phone || "MISSING",
+        website: business.website || "MISSING",
+        ai_audit: ai_audit,
+        outreach_pitch: outreach_pitch
+    };
+});
+
+await Actor.pushData(finalResults);
+await Actor.exit();
