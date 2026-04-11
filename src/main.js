@@ -2,13 +2,15 @@ import { Actor } from 'apify';
 
 await Actor.init();
 
+// 1. Get the settings you typed into the "Input" tab
 const input = await Actor.getInput() || {};
 const location = input.location || 'Miami, FL';
-const businessType = input.businessType || 'Pet Groomer';
+const businessType = input.businessType || 'Bakery';
 const maxItems = input.maxItems || 10; 
 
 console.log(`🚀 STARTING SUPER AUDIT: Analyzing ${businessType}s in ${location}...`);
 
+// 2. Call the Google Maps Scraper
 const mapRun = await Actor.call('compass/crawler-google-places', {
     "searchStringsArray": [`${businessType} in ${location}`],
     "maxReviews": 10, 
@@ -20,11 +22,13 @@ const { defaultDatasetId } = mapRun;
 const dataset = await Actor.openDataset(defaultDatasetId);
 const { items } = await dataset.getData();
 
+// 3. Process the data and create the AI Audit
 const finalResults = items.map((business) => {
     const stars = business.totalScore;
     const count = business.reviewsCount || 0;
     const hasWebsite = !!business.website;
     
+    // Combine reviews into one big text to search for problems
     const allReviewsText = (business.reviews || []).map(r => r.text).join(" ").toLowerCase();
     
     let complaint = "None found";
@@ -40,6 +44,7 @@ const finalResults = items.map((business) => {
     let ai_audit = "";
     let outreach_pitch = "";
 
+    // LOGIC: Decide what to say based on what we found
     if (complaint !== "None found") {
         ai_audit = `🚨 CRITICAL: Customers are complaining about ${complaint}.`;
         outreach_pitch = `Hi ${business.title}, I noticed a few recent reviews mentioning ${complaint.toLowerCase()}. I specialize in helping ${businessType}s fix their reputation and bury those negative comments!`;
@@ -56,16 +61,3 @@ const finalResults = items.map((business) => {
 
     return {
         priority_score: (complaint !== "None found" || !hasWebsite) ? "🚨 HIGH" : "✅ Healthy",
-        businessName: business.title,
-        stars: stars || "None",
-        reviewCount: count,
-        top_complaint: complaint,
-        phone: business.phone || "MISSING",
-        website: business.website || "MISSING",
-        ai_audit: ai_audit,
-        outreach_pitch: outreach_pitch
-    };
-});
-
-await Actor.pushData(finalResults);
-await Actor.exit();
