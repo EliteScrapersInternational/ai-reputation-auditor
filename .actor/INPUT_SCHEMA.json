@@ -1,21 +1,22 @@
 {
-    "title": "Search Settings",
+    "title": "Reputation Auditor Input",
     "type": "object",
     "schemaVersion": 1,
     "properties": {
-        "location": {
-            "title": "City",
-            "type": "string",
-            "description": "Example: Queens, NY",
-            "editor": "textfield",
-            "prefill": "Queens, NY"
-        },
         "businessType": {
-            "title": "Business Type",
+            "title": "What business are we auditing?",
             "type": "string",
-            "description": "Example: Plumbers",
+            "description": "Example: Dentist, Plumber, Solar",
             "editor": "textfield",
-            "prefill": "Plumbers"
+            "prefill": "Solar Energy Company"
+        },
+        "location": {
+            "title": "Where are they located?",
+            "type": "string",
+            "description": "Example: Atlanta, GA or Miami, FL",
+            "editor": "textfield",
+            "prefill": "Atlanta, GA"
         }
-    }
+    },
+    "required": ["businessType", "location"]
 }
