@@ -25,7 +25,6 @@ const finalResults = items.map((business) => {
     const count = business.reviewsCount || 0;
     const hasWebsite = !!business.website;
     
-    // --- REVIEW ANALYSIS LOGIC ---
     const allReviewsText = (business.reviews || []).map(r => r.text).join(" ").toLowerCase();
     
     let complaint = "None found";
@@ -37,7 +36,6 @@ const finalResults = items.map((business) => {
         complaint = "Customer Service/Staff";
     }
 
-    // --- SMART PITCH LOGIC ---
     const reviewWord = count === 1 ? "review" : "reviews";
     let ai_audit = "";
     let outreach_pitch = "";
@@ -64,7 +62,10 @@ const finalResults = items.map((business) => {
         top_complaint: complaint,
         phone: business.phone || "MISSING",
         website: business.website || "MISSING",
-        });
+        ai_audit: ai_audit,
+        outreach_pitch: outreach_pitch
+    };
+});
 
 await Actor.pushData(finalResults);
-await Actor.exit()
+await Actor.exit();
