@@ -1,19 +1,14 @@
-# 🤖 AI Reputation Auditor & Lead Gen Bot
+# Elite Reputation Auditor Pro 🕵️‍♂️
 
-This is a smart web scraper built for the **Apify Store**. It doesn't just find businesses; it helps you understand them using AI.
+Stop wasting time on leads that don't need you. This tool finds businesses that are **Invisible**, **Unprotected**, or **Losing Trust**.
 
-### 🌟 What it does:
-* **Scrapes Google Maps:** Finds businesses like plumbers, roofers, or solar installers.
-* **Reads Reviews:** Grabs the latest customer feedback.
-* **AI Analysis:** Uses AI to find the "Pain Point" (what customers are complaining about).
-* **Personalized Outreach:** Writes a "suggested script" so you can help the business fix their problems.
+### 🌟 Features:
+- **Smart Audit:** Instantly identifies if a business has "Low Proof" (too few reviews).
+- **Reputation Guard:** Flags businesses with ratings under 4.2 stars.
+- **Outreach Assistant:** Generates a custom sales pitch for every lead.
+- **Universal:** Works for Dentists, Solar, Pet Groomers, or any business you can imagine!
 
-### 🛠️ Built With:
-* [Apify SDK](https://apify.com)
-* Node.js
-* OpenAI (for the AI Brain)
-
-### 🚀 How to use it:
-1. Go to the **Apify Actor** page.
-2. Enter the **City** and **Industry** you want to search.
-3. Click **Run** and wait for the AI to finish the audit!
+### 🚀 How to Use:
+1. Enter the **Business Type**.
+2. Enter the **Location**.
+3. Hit **Start** and watch the high-priority leads roll in!
